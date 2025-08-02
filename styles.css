@@ -28,3 +28,10 @@ img {
   color: #333;
   margin-top: 20px;
 }
+
+  #tapHint {
+    text-align: center;
+    color: #ff9800;
+    font-size: 1.2em;
+    margin-top: 20px;
+  }

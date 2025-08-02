@@ -3,8 +3,9 @@ let analyser;
 let microphone;
 let dataArray;
 
-const threshold = 50; // You can lower this if detection is too insensitive
+const threshold = 200;
 let blown = false;
+let started = false;
 
 async function initMic() {
   try {
@@ -16,11 +17,15 @@ async function initMic() {
     microphone = audioContext.createMediaStreamSource(stream);
     analyser = audioContext.createAnalyser();
     analyser.fftSize = 512;
-
     microphone.connect(analyser);
 
     dataArray = new Uint8Array(analyser.frequencyBinCount);
-    detectBlow();
+
+    // Wait a moment to avoid initial click triggering false blow
+    setTimeout(() => {
+      started = true;
+      detectBlow();
+    }, 1000);
   } catch (err) {
     alert("Microphone access is needed for this to work.");
     console.error("Error accessing microphone:", err);
@@ -30,20 +35,13 @@ async function initMic() {
 function detectBlow() {
   requestAnimationFrame(detectBlow);
 
-  analyser.getByteTimeDomainData(dataArray);
+  analyser.getByteFrequencyData(dataArray);
+  let maxVolume = Math.max(...dataArray);
 
-  let sum = 0;
-  for (let i = 0; i < dataArray.length; i++) {
-    const deviation = dataArray[i] - 128;
-    sum += deviation * deviation;
-  }
+  console.log("Max frequency volume:", maxVolume);
 
-  const volume = Math.sqrt(sum / dataArray.length);
-
-  console.log("Volume detected:", volume.toFixed(2)); // DEBUG
-
-  if (volume > threshold && !blown) {
-    console.log("Blow detected! Volume exceeded threshold.");
+  if (started && maxVolume > threshold && !blown) {
+    console.log("Blow detected by frequency volume!");
     blowOutCandles();
   }
 }
@@ -57,6 +55,18 @@ function blowOutCandles() {
 }
 
 window.addEventListener("load", () => {
-  console.log("Page loaded. Initializing mic...");
-  initMic();
+  console.log("Page loaded. Waiting for user interaction...");
+
+  const modal = document.getElementById("celebrateModal");
+  const startBtn = document.getElementById("startButton");
+
+  startBtn.addEventListener("click", async () => {
+    modal.style.display = "none";
+
+    if (!audioContext || audioContext.state === "suspended") {
+      await audioContext?.resume();
+    }
+
+    initMic();
+  });
 });
