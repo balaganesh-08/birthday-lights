@@ -1,0 +1,30 @@
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #ffe0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+  text-align: center;
+}
+
+.birthday-text {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #ff0080;
+  text-shadow: 2px 2px #fff;
+}
+
+img {
+  width: 80%;
+  max-width: 300px;
+  transition: opacity 1s ease;
+}
+
+#hint {
+  font-size: 1em;
+  color: #333;
+  margin-top: 20px;
+}
